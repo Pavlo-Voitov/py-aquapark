@@ -10,13 +10,15 @@ class IntegerRange:
         self.name = "_" + name
 
     def __get__(self, instance: object, owner: type) -> int:
+        if instance is None:
+            return self
         return instance.__dict__[self.name]
 
     def __set__(self, instance: object, value: int) -> None:
         if not isinstance(value, int):
-            raise TypeError
+            raise TypeError("It's not integer")
         if value < self.min_amount or value > self.max_amount:
-            raise ValueError()
+            raise ValueError("The integer must be in limit")
         instance.__dict__[self.name] = value
 
 
@@ -55,7 +57,9 @@ class Slide:
 
     def can_access(self, visitor: "Visitor") -> bool:
         try:
-            self.limitation_class(visitor.age, visitor.weight, visitor.height)
+            self.limitation_class.age.__set__(visitor, visitor.age)
+            self.limitation_class.weight.__set__(visitor, visitor.weight)
+            self.limitation_class.height.__set__(visitor, visitor.height)
             return True
         except (TypeError, ValueError):
             return False
